@@ -70,7 +70,9 @@ def plot_loss_and_acc(loss, acc, window=100):
     plt.show()
 
 if __name__ == "__main__":
-    x = [np.random.rand(1000) for _ in range(10)]
-    y = [np.random.rand(1000) for _ in range(10)]
+    from torch import load
+    s_dict = load(os.path.join(SCRIPT_DIR,'..','training_scripts','checkpoints','example_trained_model.pt'))
+    solver = s_dict['solver']
 
-    plot_loss_and_acc(x,y)
+    plot_loss_and_acc(solver.train_loss_history, solver.train_acc_history)
+    plot_loss_and_acc(solver.val_loss_history, solver.val_acc_history)
