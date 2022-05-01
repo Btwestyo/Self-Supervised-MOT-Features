@@ -71,7 +71,7 @@ def plot_loss_and_acc(loss, acc, window=100):
 
 if __name__ == "__main__":
     from torch import load
-    s_dict = load(os.path.join(SCRIPT_DIR,'..','training_scripts','checkpoints','example_trained_model.pt'))
+    s_dict = load(os.path.join(SCRIPT_DIR,'..','training','checkpoints','example_trained_model.pt'))
     solver = s_dict['solver']
 
     plot_loss_and_acc(solver.train_loss_history, solver.train_acc_history)
