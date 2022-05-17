@@ -59,7 +59,7 @@ def extract_image_patch(image, bbox, patch_shape):
 
     # convert to top left, bottom right
     bbox[2:] += bbox[:2]
-    bbox = bbox.astype(np.int)
+    bbox = bbox.astype(np.int64)
 
     # clip at image boundaries
     bbox[:2] = np.maximum(0, bbox[:2])
@@ -86,7 +86,6 @@ class ImageEncoder(object):
         self.output_var = tf.get_default_graph().get_tensor_by_name(
             "net/%s:0" % output_name)
 
-        import pdb; pdb.set_trace()
         assert len(self.output_var.get_shape()) == 2
         assert len(self.input_var.get_shape()) == 4
         self.feature_dim = self.output_var.get_shape().as_list()[-1]
@@ -178,11 +177,11 @@ def generate_detections(encoder, mot_dir, output_dir, detection_dir=None):
         detections_in = np.loadtxt(detection_file, delimiter=',')
         detections_out = []
 
-        frame_indices = detections_in[:, 0].astype(np.int)
-        min_frame_idx = frame_indices.astype(np.int).min()
-        max_frame_idx = frame_indices.astype(np.int).max()
+        frame_indices = detections_in[:, 0].astype(np.int64)
+        min_frame_idx = frame_indices.astype(np.int64).min()
+        max_frame_idx = frame_indices.astype(np.int64).max()
 
-        for i in range(5):
+        for i in range(100):
             frame_idx = random.randint(min_frame_idx, max_frame_idx)
             print("Frame %05d/%05d" % (frame_idx, max_frame_idx))
             mask = frame_indices == frame_idx
@@ -193,6 +192,7 @@ def generate_detections(encoder, mot_dir, output_dir, detection_dir=None):
                 continue
             bgr_image = cv2.imread(
                 image_filenames[frame_idx], cv2.IMREAD_COLOR)
+            import pdb; pdb.set_trace()
             features = encoder(bgr_image, rows[:, 2:6].copy(), count)
             count += 1
             # detections_out += [np.r_[(row, feature)] for row, feature
