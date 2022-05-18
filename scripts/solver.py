@@ -27,9 +27,9 @@ class Solver(object):
 
         self.train_acc_history = None
         self.val_acc_history = None
-        
+
     def train(self,
-        epochs:int, 
+        epochs:int,
         train_data_loader:DataLoader,
         val_data_loader:DataLoader,
         save_path:str=None,
@@ -58,7 +58,7 @@ class Solver(object):
         if verbose:
             print('Start Training From Epoch #{:d}'.format(start_epoch+1))
             print('Model sent to device: ', self.DEVICE)
-        
+
         self.model = self.model.to(self.DEVICE) # send model to GPU if available
 
         # Generate ID string for checkpoint files
@@ -79,7 +79,7 @@ class Solver(object):
             for batch_idx, batch in enumerate(train_data_loader):
 
                 nn_input, target = batch # input and ground truth lables
-
+                import pdb; pdb.set_trace()
                 nn_input = nn_input.to(self.DEVICE)
                 target = target.to(self.DEVICE)
 
@@ -109,7 +109,7 @@ class Solver(object):
             # get validation stats for this epoch
             val_loss[epoch], val_acc[epoch] = self.validate(val_data_loader)
             if verbose:
-                print("Validation Loss: ", val_loss[epoch].mean(), 
+                print("Validation Loss: ", val_loss[epoch].mean(),
                       " Acc: ", val_acc[epoch].mean())
 
             # store all values in solver
@@ -130,7 +130,7 @@ class Solver(object):
 
     def validate(self, val_data_loader) -> None:
         num_valloader   = len(val_data_loader) # number of batches
-        
+
         # re-instantiate model
         model = copy.deepcopy(self.model)
         model = self.model.to(self.DEVICE) # send model to GPU if available
@@ -157,7 +157,7 @@ class Solver(object):
 
     def test(self, test_data_loader) -> None:
         num_testloader   = len(test_data_loader) # number of batches
-        
+
         # re-instantiate model
         model = copy.deepcopy(self.model)
         model = self.model.to(self.DEVICE) # send model to GPU if available
@@ -198,12 +198,11 @@ class Solver(object):
     def _print_stats(self, batch_idx, num_trainloader, batch_loss, batch_acc):
         print(
             "Iteration: #{:d}/{:d} \tLoss(curr/avg) {:.4f}/{:.4f}\t Acc(curr/avg) {:.4f}/{:.4f}"
-            .format(batch_idx+1, 
-                    num_trainloader, 
+            .format(batch_idx+1,
+                    num_trainloader,
                     batch_loss[batch_idx],
                     np.mean(batch_loss[:(batch_idx+1)]),
                     batch_acc[batch_idx],
                     np.mean(batch_acc[:(batch_idx+1)])
                     )
             )
-        
