@@ -1,5 +1,7 @@
 # Don't add data to repo
-/data
+/data/*
+
+/resources/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
