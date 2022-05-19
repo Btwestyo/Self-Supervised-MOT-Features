@@ -1,4 +1,0 @@
-[submodule "deep_sort"]
-	path = deep_sort
-	url = https://github.com/mrunaljsarvaiya/deep_sort
-	branch = master
