@@ -12,9 +12,9 @@ class CustomResNet(nn.Module):
         self.resnet =  models.resnet18(pretrained=True)
         # self.resnet = torch.nn.Sequential(*(list(self.resnet.children())[:-1]))
         # self.pretrained = nn.Sequential(*list(self.resnet.modules())[:-1])
-        self.custom_layers = nn.Sequential(nn.Linear(1000, 256),
+        self.custom_layers = nn.Sequential(nn.Linear(1000, 1000),
                                            nn.ReLU(),
-                                           nn.Linear(256, 256),
+                                           nn.Linear(1000, 1000),
                                            nn.Softmax(dim=0))
         init_weights(self.custom_layers)
 

@@ -27,10 +27,9 @@ from scripts.dataloaders.dataloader_rotation import RotationDataSet
 
 if __name__ == "__main__":
     # instantiate model, optimizer, and loss function for solver
-    # model = ConvClassifier(in_ch=1, base_filt=8, dim_reduce=2)
     model = CustomResNet()
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),
-                                        lr=1e-3)
+                                        lr=2e-4)
     loss_fcn = torch.nn.CrossEntropyLoss()
 
     solver = Solver(model, optimizer, loss_fcn)
