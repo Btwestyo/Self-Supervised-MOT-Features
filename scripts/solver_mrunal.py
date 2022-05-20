@@ -29,6 +29,9 @@ class Solver(object):
         self.train_acc_history = None
         self.val_acc_history = None
 
+        self.best_val_acc = None
+        self.best_val_epoch_idx = None
+
     def train(self,
         epochs:int,
         train_data_loader:DataLoader,
@@ -55,6 +58,8 @@ class Solver(object):
         epoch_acc   = [np.zeros(num_trainloader).copy() for _ in range(epochs)]
         val_loss    = [np.zeros(num_valloader).copy() for _ in range(epochs)]
         val_acc     = [np.zeros(num_valloader).copy() for _ in range(epochs)]
+        self.best_val_acc = None
+        self.best_val_epoch_idx = None
 
         if verbose:
             print('Start Training From Epoch #{:d}'.format(start_epoch+1))
@@ -124,6 +129,10 @@ class Solver(object):
             if (save_path is not None) and ((epoch+1)%save_every==0):
                 path = join(save_path, id_str+'_'+str(epoch)+'.pt')
                 self.save_checkpoint(path, epoch)
+
+            if self.best_val_acc is None or val_acc[epoch].mean() > self.best_val_acc:
+                self.best_val_acc = val_acc[epoch].mean()
+                self.best_val_epoch_idx = epoch
 
         end_time = time.time()
 
