@@ -11,6 +11,9 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import random
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import plotly.express as px
 
 # unfortunately this is required to use relative imports
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,35 +21,44 @@ sys.path.append(os.path.dirname(
                 os.path.dirname(SCRIPT_DIR)))
 
 from scripts.models.model_conv_ae import Conv_AE
+from scripts.dataloaders.dataloader_vanilla import VanillaImageDataset
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# convert data to torch.FloatTensor
-transform = transforms.ToTensor()
 
-# load the training and test datasets
-train_data = datasets.CIFAR10(root='data', train=True,
-                                   download=True, transform=transform)
-test_data = datasets.CIFAR10(root='data', train=False,
-                                  download=True, transform=transform)
+data_dir = '/Users/brianweston/Documents/Stanford_CS/CS231N_CNN/Project/cs231n_final_project/data/detection_bounding_boxes'
+train_dir = data_dir + '/train'
+test_dir = data_dir + '/test'
 
-# how many samples per batch to load
-batch_size = 20
-num_workers = 0
+training_data = VanillaImageDataset(train_dir)
+testing_data = VanillaImageDataset(train_dir)
+#m=len(training_data)
+#print(m)
+batch_size = 64
+print(training_data[0].shape)
 
-# prepare data loaders
-train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, num_workers=num_workers)
-test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, num_workers=num_workers)
+
+train_loader = DataLoader(training_data, batch_size = batch_size, shuffle=False)
+test_loader = DataLoader(training_data, batch_size = batch_size, shuffle=False)
+
+fig, axs = plt.subplots(5, 5, figsize=(8,8))
+for ax in axs.flatten():
+    # random.choice allows to randomly sample from a list-like object (basically anything that can be accessed with an index, like our dataset)
+    print(axs.flatten().shape)
+    img = random.choice(training_data).numpy()
+    ax.imshow(np.transpose(img.astype('uint8'), (1, 2, 0)), interpolation='nearest')
+    ax.set_xticks([])
+    ax.set_yticks([])
+plt.tight_layout()
+fig.savefig('full_figure.png')
+
 
 # helper function to un-normalize and display an image
 def imshow(img):
     img = img / 2 + 0.5  # unnormalize
-    plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
+    #plt.imshow(img[0,:,:,:])
+    plt.imshow(np.transpose(img.astype('uint8'), (1, 2, 0)), interpolation='nearest')  # convert from Tensor image
     
-# specify the image classes
-classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
-           'dog', 'frog', 'horse', 'ship', 'truck']
-
 # import convolutional autoencoder
 model = Conv_AE(1000)
 print(model)
@@ -74,7 +86,7 @@ for epoch in range(1, n_epochs+1):
     for data in train_loader:
         # _ stands in for labels, here
         # no need to flatten images
-        images, _ = data
+        images = data
         # clear the gradients of all optimized variables
         optimizer.zero_grad()
         # forward pass: compute predicted outputs by passing inputs to the model
@@ -97,31 +109,31 @@ for epoch in range(1, n_epochs+1):
 
 # obtain one batch of test images
 dataiter = iter(test_loader)
-images, labels = dataiter.next()
+images = dataiter.next()
 
 # get sample outputs
 output = model(images)
 # prep images for display
 images = images.numpy()
 
-# output is resized into a batch of iages
-output = output.view(batch_size, 3, 32, 32)
+# output is resized into a batch of images
+output = output.view(batch_size, 3, 224, 224) #batch_size, 3, 32, 32 #224 #224
+print(output.shape)
 # use detach when it's an output that requires_grad
 output = output.detach().numpy()
-
 
 # plot the first ten input images and then reconstructed images
 fig, axes = plt.subplots(nrows=2, ncols=10, sharex=True, sharey=True, figsize=(24,4))
 for idx in np.arange(20):
-    ax = fig.add_subplot(2, 20/2, idx+1, xticks=[], yticks=[])
+    ax = fig.add_subplot(2, 10, idx+1, xticks=[], yticks=[])
     imshow(output[idx])
-    fig.savefig('reconstructed_cifar10.png')
-    ax.set_title(classes[labels[idx]])
+    fig.savefig('reconstructed_mot17.png')
+    #ax.set_title(classes[labels[idx]])
     
 # plot the first ten input images and then reconstructed images
 fig, axes = plt.subplots(nrows=2, ncols=10, sharex=True, sharey=True, figsize=(24,4))
 for idx in np.arange(20):
-    ax = fig.add_subplot(2, 20/2, idx+1, xticks=[], yticks=[])
+    ax = fig.add_subplot(2, 10, idx+1, xticks=[], yticks=[])
     imshow(images[idx])
-    fig.savefig('original_cifar10.png')
-    ax.set_title(classes[labels[idx]])
+    fig.savefig('original_mot17.png')
+    #ax.set_title(classes[labels[idx]])
