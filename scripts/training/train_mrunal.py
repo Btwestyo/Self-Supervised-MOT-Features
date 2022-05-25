@@ -57,8 +57,11 @@ def train_gridsearch():
                     solver = Solver(model, optimizer, loss_fcn)
 
                     # get training and test datasets from torch
-                    training_data = RotationDataSet("/home/peanut/Documents/cs231n_final_project/data/detection_bounding_boxes/train", n=None)
-                    test_data = RotationDataSet("/home/peanut/Documents/cs231n_final_project/data/detection_bounding_boxes/test", n=None)
+                    # training_data = RotationDataSet("/home/peanut/Documents/cs231n_final_project/data/detection_bounding_boxes/train", n=None)
+                    # test_data = RotationDataSet("/home/peanut/Documents/cs231n_final_project/data/detection_bounding_boxes/test", n=None)
+
+                    training_data = RotationDataSet("/home/ubuntu/mrunal/cs231n_final_project/data/detection_bounding_boxes/train", n=None)
+                    test_data = RotationDataSet("/home/ubuntu/mrunal/cs231n_final_project/data/detection_bounding_boxes/test", n=None)
 
                     # create dataloaders for datasets
                     train_dataloader = DataLoader(training_data, batch_size=int(batch_size), shuffle=False)
