@@ -13,14 +13,14 @@ class CustomResNetConv(nn.Module):
         super(CustomResNetConv, self).__init__()
         self.resnet =  models.resnet18(pretrained=True)
 
-        # remove the resnet linear layer and adaptive average pool
+        # remove the resnet linear layer
         self.resnet = torch.nn.Sequential(*(list(self.resnet.children())[:-1]))
 
         self.custom_layers = nn.Sequential(nn.Flatten(),
                                            nn.Linear(512, hidden_dim),
                                            nn.ReLU(),
                                            nn.Linear(hidden_dim, classes),
-                                           nn.Softmax(dim=0))
+                                           nn.Softmax(dim=1))
         init_weights(self.custom_layers)
 
         n_blocks = len(self.resnet)
