@@ -22,7 +22,7 @@ sys.path.append(os.path.dirname(
 from scripts.plotting.plot_results import plot_loss_and_acc
 
 class RotationDataSet(Dataset):
-  def __init__(self, dir):
+  def __init__(self, dir, n=None):
       """
       Args:
           csv_file (string): Path to the csv file with annotations.
@@ -36,10 +36,15 @@ class RotationDataSet(Dataset):
       self.root_dir = dir
       self.files = sorted(filter(lambda x: os.path.isfile(os.path.join(dir, x)),
                       os.listdir(dir)))
+      if n is None:
+        self.n = len(self.files)
+      else:
+        self.n = min(n, len (self.files))
+
       print("{} files in directory {}".format(len(self.files), dir))
 
   def __len__(self):
-    return int(4*len(self.files))
+    return int(4*self.n)
 
   def __getitem__(self, idx_in):
     rot = idx_in % 4

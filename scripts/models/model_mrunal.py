@@ -15,7 +15,7 @@ class CustomResNet(nn.Module):
         self.custom_layers = nn.Sequential(nn.Linear(1000, 512),
                                            nn.ReLU(),
                                            nn.Linear(512, 128),
-                                           nn.Softmax(dim=0))
+                                           nn.Softmax(dim=1))
         init_weights(self.custom_layers)
 
         for param in self.resnet.parameters():
