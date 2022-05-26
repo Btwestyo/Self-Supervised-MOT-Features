@@ -79,7 +79,6 @@ class Solver(object):
             for batch_idx, batch in enumerate(train_data_loader):
 
                 nn_input, target = batch # input and ground truth lables
-                import pdb; pdb.set_trace()
                 nn_input = nn_input.to(self.DEVICE)
                 target = target.to(self.DEVICE)
 
