@@ -28,26 +28,26 @@ from scripts.dataloaders.dataloader_vanilla import VanillaImageDataset
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-data_dir = '/Users/brianweston/Documents/Stanford_CS/CS231N_CNN/Project/cs231n_final_project/data/detection_bounding_boxes'
-train_dir = data_dir + '/train'
-test_dir  = data_dir + '/test'
+data_dir = '/Users/brianweston/Documents/Stanford_CS/CS231N_CNN/Project/cs231n_final_project/data/coco_unlabeled2017_mid'
+#train_dir = data_dir + '/train'
+#test_dir  = data_dir + '/test'
 
-training_data = VanillaImageDataset(train_dir)
-testing_data = VanillaImageDataset(test_dir)
+training_data = VanillaImageDataset(data_dir)
+#testing_data = VanillaImageDataset(test_dir)
 #m=len(training_data)
 #print(m)
-batch_size = 64
+batch_size = 64 #64
 #print(training_data[0].shape)
 
 
-train_loader = DataLoader(training_data, batch_size = batch_size, shuffle=False)
-test_loader = DataLoader(testing_data, batch_size = batch_size, shuffle=False)
+train_loader = DataLoader(training_data, batch_size = batch_size, shuffle=True  )
+#test_loader = DataLoader(testing_data, batch_size = batch_size, shuffle=False)
 
 fig, axs = plt.subplots(5, 5, figsize=(8,8))
 for ax in axs.flatten():
     # random.choice allows to randomly sample from a list-like object (basically anything that can be accessed with an index, like our dataset)
     #print(axs.flatten().shape)
-    img = random.choice(testing_data).numpy()
+    img = random.choice(training_data).numpy()
     ax.imshow(np.transpose(img, (1, 2, 0)))
     ax.set_xticks([])
     ax.set_yticks([])
@@ -71,53 +71,61 @@ print(images.shape)
 img = images[0,:,:,:]
 encoded_output = model.encoder(img)
 print(model)
+print(f"max size: {torch.max(img)}, min size: {torch.min(img)}")
 
 # prints number of parameters
 pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print(f"Number of trainable parameters: {pytorch_total_params} ")
 
 # specify loss function
-criterion = nn.BCELoss() #BCE vs MSE
+criterion = nn.MSELoss() #BCE vs MSE
 
 # specify loss function
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001) #weight_decay=1e-5
 
 # number of epochs to train the model
-n_epochs = 1
+n_epochs = 120
 
 for epoch in range(1, n_epochs+1):
     # monitor training loss
-    train_loss = 0.0
+    #train_loss = 0.0
     
     ###################
     # train the model #
     ###################
     for data in tqdm(train_loader):
         # _ stands in for labels, here
-        # no need to flatten images
-        images = data
-        # clear the gradients of all optimized variables
-        optimizer.zero_grad()
-        # forward pass: compute predicted outputs by passing inputs to the model
-        outputs = model(images)
-        # calculate the loss
-        loss = criterion(outputs, images)
-        # backward pass: compute gradient of the loss with respect to model parameters
+        img = data
+        recon = model(img)
+        loss = criterion(recon, img)
         loss.backward()
-        # perform a single optimization step (parameter update)
         optimizer.step()
+        optimizer.zero_grad()
+        
+        # no need to flatten images
+        #images = data
+        # clear the gradients of all optimized variables
+        #optimizer.zero_grad()
+        # forward pass: compute predicted outputs by passing inputs to the model
+        #outputs = model(images)
+        # calculate the loss
+        #loss = criterion(outputs, images)
+        # backward pass: compute gradient of the loss with respect to model parameters
+        #loss.backward()
+        # perform a single optimization step (parameter update)
+        #optimizer.step()
         # update running training loss
-        train_loss += loss.item()*images.size(0)
+        #train_loss += loss.item()*images.size(0)
             
     # print avg training statistics 
-    train_loss = train_loss/len(train_loader)
+    #train_loss = train_loss/len(train_loader)
     print('Epoch: {} \tTraining Loss: {:.6f}'.format(
         epoch, 
-        train_loss
+        float(loss)
         ))
 
 # obtain one batch of test images
-dataiter = iter(test_loader)
+dataiter = iter(train_loader)
 images = dataiter.next()
 
 # get sample outputs
@@ -126,17 +134,25 @@ output = model(images)
 images = images.numpy()
 
 # output is resized into a batch of images
-output = output.view(-1, 3, 224, 224) #batch_size, 3, 32, 32 #224 #224
+output = output.view(-1, 3, 112, 112) #batch_size, 3, 32, 32 #224 #224
 print(output.shape)
 # use detach when it's an output that requires_grad
 output = output.detach().numpy()
+
+
+# plot training/validation accuracy and loss
+plot_loss_and_acc(solver.train_loss_history, solver.train_acc_history)
+plot_loss_and_acc(solver.val_loss_history, solver.val_acc_history)
+
+# save final solver object
+solver.save_solver(os.path.join(SCRIPT_DIR,'checkpoints','example_trained_model.pt')) 
 
 # plot the first ten input images and then reconstructed images
 fig, axes = plt.subplots(nrows=2, ncols=10, sharex=True, sharey=True, figsize=(24,4))
 for idx in np.arange(20):
     ax = fig.add_subplot(2, 10, idx+1, xticks=[], yticks=[])
     imshow(output[idx])
-    fig.savefig('reconstructed_mot17.png')
+    fig.savefig('reconstructed_mscoco.png')
     #ax.set_title(classes[labels[idx]])
     
 # plot the first ten input images and then reconstructed images
@@ -144,5 +160,6 @@ fig, axes = plt.subplots(nrows=2, ncols=10, sharex=True, sharey=True, figsize=(2
 for idx in np.arange(20):
     ax = fig.add_subplot(2, 10, idx+1, xticks=[], yticks=[])
     imshow(images[idx])
-    fig.savefig('original_mot17.png')
+    fig.savefig('original_mscoco.png')
     #ax.set_title(classes[labels[idx]])
+
