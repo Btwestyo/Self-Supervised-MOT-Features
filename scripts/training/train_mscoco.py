@@ -53,7 +53,9 @@ for ax in axs.flatten():
     # random.choice allows to randomly sample from a list-like object (basically anything that can be accessed with an index, like our dataset)
     #print(axs.flatten().shape)
     img, _ = random.choice(training_data) #.numpy()
-    ax.imshow(np.transpose(img, (1, 2, 0)))
+    img = img.permute(1, 2, 0)
+    image = cv2.cvtColor(img.numpy(), cv2.COLOR_BGR2RGB)
+    ax.imshow(image)
     ax.set_xticks([])
     ax.set_yticks([])
 plt.tight_layout()
@@ -64,7 +66,10 @@ fig.savefig('full_figure.png')
 def imshow(img):
     img = img  # unnormalize
     #plt.imshow(img[0,:,:,:])
-    plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
+    img = np.transpose(img, (1, 2, 0))
+    image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    plt.imshow(img)
+    #plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
 
 
 # import convolutional autoencoder
@@ -78,7 +83,7 @@ loss_fcn = criterion
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001) #weight_decay=1e-5
 
 # number of epochs to train the model
-n_epochs = 100
+n_epochs = 1
 
 solver = Solver(model, optimizer, loss_fcn)
 
