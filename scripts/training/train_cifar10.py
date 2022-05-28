@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+from torchvision import transforms, utils
 import random
+from tqdm import tqdm
 
 # unfortunately this is required to use relative imports
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,11 +20,17 @@ sys.path.append(os.path.dirname(
                 os.path.dirname(SCRIPT_DIR)))
 
 from scripts.models.model_conv_ae import Conv_AE
+from scripts.models.model_cae import Encoder, Decoder
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # convert data to torch.FloatTensor
-transform = transforms.ToTensor()
+transform = transforms.Compose([
+    #T.RandomCrop(32, padding=4),
+    #T.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    #transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+])
 
 # load the training and test datasets
 train_data = datasets.CIFAR10(root='data', train=True,
@@ -40,7 +48,7 @@ test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, num_
 
 # helper function to un-normalize and display an image
 def imshow(img):
-    img = img / 2 + 0.5  # unnormalize
+    img = img #/ 2 + 0.5  # unnormalize
     plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
     
 # specify the image classes
@@ -48,7 +56,14 @@ classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
            'dog', 'frog', 'horse', 'ship', 'truck']
 
 # import convolutional autoencoder
-model = Conv_AE(1000)
+model = Conv_AE(1000,'cifar10')
+
+
+dataiter = iter(train_loader)
+images, _ = dataiter.next()
+print(images.shape)
+img = images[0,:,:,:]
+encoded_output = model.encoder(img)
 print(model)
 
 # prints number of parameters
@@ -71,7 +86,7 @@ for epoch in range(1, n_epochs+1):
     ###################
     # train the model #
     ###################
-    for data in train_loader:
+    for data in tqdm(train_loader):
         # _ stands in for labels, here
         # no need to flatten images
         images, _ = data
@@ -108,6 +123,9 @@ images = images.numpy()
 output = output.view(batch_size, 3, 32, 32)
 # use detach when it's an output that requires_grad
 output = output.detach().numpy()
+
+torch.save(model,'cae_cifar10.pth')
+torch.load('cae_cifar10.pth')
 
 
 # plot the first ten input images and then reconstructed images

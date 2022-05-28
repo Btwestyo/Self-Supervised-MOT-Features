@@ -31,8 +31,6 @@ class VanillaImageDataset(Dataset):
               on a sample.
       """
       super(VanillaImageDataset, self).__init__()
-      self.transform = transforms.Compose([
-                        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
       self.root_dir = dir
       self.files = sorted(filter(lambda x: os.path.isfile(os.path.join(dir, x)),
                       os.listdir(dir)))
@@ -49,7 +47,12 @@ class VanillaImageDataset(Dataset):
       path = os.path.join(self.root_dir, str(self.files[idx]))
       # print("loading image {}".format(path))
       img = cv2.imread(path, cv2.IMREAD_COLOR)
-      img = cv2.resize(img, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+      if(type(img) == type(None)): #.DS_Store can throw thigns off
+        print(path)
+        quit()
+      else:
+        img = cv2.resize(img, dsize=(112, 112), interpolation=cv2.INTER_CUBIC)
+        img = img/255.
 
       img = np.moveaxis(img, [0, 1, 2], [1, 2, 0])
       img = torch.tensor(img).float()
@@ -59,4 +62,4 @@ class VanillaImageDataset(Dataset):
       import pdb; pdb.set_trace()
       return None, None
 
-    return img
+    return img, img

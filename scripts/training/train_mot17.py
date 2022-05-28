@@ -14,6 +14,8 @@ import random
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import plotly.express as px
+from tqdm import tqdm
+from time import sleep
 
 # unfortunately this is required to use relative imports
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -28,25 +30,25 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 data_dir = '/Users/brianweston/Documents/Stanford_CS/CS231N_CNN/Project/cs231n_final_project/data/detection_bounding_boxes'
 train_dir = data_dir + '/train'
-test_dir = data_dir + '/test'
+test_dir  = data_dir + '/test'
 
 training_data = VanillaImageDataset(train_dir)
-testing_data = VanillaImageDataset(train_dir)
+testing_data = VanillaImageDataset(test_dir)
 #m=len(training_data)
 #print(m)
 batch_size = 64
-print(training_data[0].shape)
+#print(training_data[0].shape)
 
 
 train_loader = DataLoader(training_data, batch_size = batch_size, shuffle=False)
-test_loader = DataLoader(training_data, batch_size = batch_size, shuffle=False)
+test_loader = DataLoader(testing_data, batch_size = batch_size, shuffle=False)
 
 fig, axs = plt.subplots(5, 5, figsize=(8,8))
 for ax in axs.flatten():
     # random.choice allows to randomly sample from a list-like object (basically anything that can be accessed with an index, like our dataset)
-    print(axs.flatten().shape)
-    img = random.choice(training_data).numpy()
-    ax.imshow(np.transpose(img.astype('uint8'), (1, 2, 0)), interpolation='nearest')
+    #print(axs.flatten().shape)
+    img = random.choice(testing_data).numpy()
+    ax.imshow(np.transpose(img, (1, 2, 0)))
     ax.set_xticks([])
     ax.set_yticks([])
 plt.tight_layout()
@@ -55,12 +57,19 @@ fig.savefig('full_figure.png')
 
 # helper function to un-normalize and display an image
 def imshow(img):
-    img = img / 2 + 0.5  # unnormalize
+    img = img  # unnormalize
     #plt.imshow(img[0,:,:,:])
-    plt.imshow(np.transpose(img.astype('uint8'), (1, 2, 0)), interpolation='nearest')  # convert from Tensor image
+    plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
     
+
 # import convolutional autoencoder
-model = Conv_AE(1000)
+model = Conv_AE(1000,'mot17')
+
+dataiter = iter(train_loader)
+images = dataiter.next()
+print(images.shape)
+img = images[0,:,:,:]
+encoded_output = model.encoder(img)
 print(model)
 
 # prints number of parameters
@@ -74,7 +83,7 @@ criterion = nn.BCELoss() #BCE vs MSE
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # number of epochs to train the model
-n_epochs = 10
+n_epochs = 1
 
 for epoch in range(1, n_epochs+1):
     # monitor training loss
@@ -83,7 +92,7 @@ for epoch in range(1, n_epochs+1):
     ###################
     # train the model #
     ###################
-    for data in train_loader:
+    for data in tqdm(train_loader):
         # _ stands in for labels, here
         # no need to flatten images
         images = data
@@ -117,7 +126,7 @@ output = model(images)
 images = images.numpy()
 
 # output is resized into a batch of images
-output = output.view(batch_size, 3, 224, 224) #batch_size, 3, 32, 32 #224 #224
+output = output.view(-1, 3, 224, 224) #batch_size, 3, 32, 32 #224 #224
 print(output.shape)
 # use detach when it's an output that requires_grad
 output = output.detach().numpy()
