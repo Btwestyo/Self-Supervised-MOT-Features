@@ -57,7 +57,7 @@ def extract_image_patch(image, bbox):
     return image
 
 def generate_detections(mot_dir=MOT_DIR, output_dir=OUTPUT_DIR, detector=DETECTOR):
-    """Generate detections with features.
+    """Generate detections without features.
 
     Parameters
     ----------
