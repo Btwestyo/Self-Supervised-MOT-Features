@@ -4,6 +4,7 @@ from os.path import join
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 import copy
 
 """Class for training, validating, and testing PyTorch models.
@@ -76,10 +77,9 @@ class Solver(object):
             batch_loss = np.zeros(num_trainloader)
             batch_acc  = np.zeros(num_trainloader)
 
-            for batch_idx, batch in enumerate(train_data_loader):
-
+            for batch_idx, batch in tqdm(enumerate(train_data_loader)):
                 nn_input, target = batch # input and ground truth lables
-                nn_input = nn_input.to(self.DEVICE)
+                nn_input = nn_input.to(self.DEVICE) #image
                 target = target.to(self.DEVICE)
 
                 nn_preds = self.model(nn_input) # inference
@@ -142,7 +142,7 @@ class Solver(object):
         with torch.no_grad():
             for batch_idx, batch in enumerate(val_data_loader):
 
-                nn_input, target = batch # input and ground truth lables
+                nn_input, target = batch # input and ground truth labels
 
                 nn_input = nn_input.to(self.DEVICE)
                 target = target.to(self.DEVICE)

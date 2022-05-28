@@ -64,4 +64,4 @@ class VanillaImageDataset(Dataset):
       import pdb; pdb.set_trace()
       return None, None
 
-    return img
+    return img, img
