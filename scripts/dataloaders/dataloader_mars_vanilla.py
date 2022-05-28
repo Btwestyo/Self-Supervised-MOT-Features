@@ -47,8 +47,8 @@ class MarsDataSet(Dataset):
 
     img = cv2.resize(img, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
 
-    cv2.imshow('img',img)
-    cv2.waitKey()
+    # cv2.imshow('img',img)
+    # cv2.waitKey()
 
     img = np.moveaxis(img, [0, 1, 2], [1, 2, 0])
     img = torch.tensor(img).float()

@@ -16,7 +16,7 @@ from scripts.dataloaders.dataloader_mars_puzzle import MarsDataSetPuzzle
 
 if __name__ == "__main__":
     # instantiate model, optimizer, and loss function for solver
-    model = CustomResNetConv()
+    model = CustomResNetConv(hidden_dim=1024)
     optimizer = torch.optim.Adam(lr=1e-5, params=model.parameters())
     loss_fcn = torch.nn.CrossEntropyLoss()
 

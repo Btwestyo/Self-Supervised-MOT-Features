@@ -17,7 +17,7 @@ from scripts.plotting.plot_results import plot_loss_and_acc
 
 if __name__ == "__main__":
 
-    s_dict = torch.load(os.path.join(SCRIPT_DIR,'..','training','checkpoints','example_trained_model.pt'))
+    s_dict = torch.load(os.path.join(SCRIPT_DIR,'..','training','checkpoints','mars_puzzle_trained_model.pt'))
     solver = s_dict['solver']
 
     # get training and test datasets from torch

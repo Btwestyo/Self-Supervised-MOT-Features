@@ -40,7 +40,13 @@ class MarsDataSetPuzzle(Dataset):
 
       if overfit and ('test' not in dir):
         # to check efficacy, overfit on small sample set
-        self.files = np.random.choice(self.files,12800,replace=False)
+        self.files = np.random.choice(self.files,100,replace=False)
+      elif ('test' not in dir):
+        self.files = np.random.choice(self.files,25600,replace=False)
+      else:
+        self.files = np.random.choice(self.files,3200,replace=False)
+
+
 
       print("{} files in directory {}".format(len(self.files), dir))
 
