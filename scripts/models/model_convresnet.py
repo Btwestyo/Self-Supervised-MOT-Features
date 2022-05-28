@@ -40,17 +40,17 @@ class CustomResNetConv(nn.Module):
         for param in self.custom_layers.parameters():
           param.requires_grad = True
 
-        print("Parameters that have gradients turned on")
+        # print("Parameters that have gradients turned on")
 
-        print("Custom layers:")
-        for name, param in self.resnet.named_parameters():
-            if param.requires_grad:
-                print(name)
+        # print("Custom layers:")
+        # for name, param in self.resnet.named_parameters():
+        #     if param.requires_grad:
+        #         print(name)
 
-        print("Custom layers:")
-        for name, param in self.custom_layers.named_parameters():
-            if param.requires_grad:
-                print(name)
+        # print("Custom layers:")
+        # for name, param in self.custom_layers.named_parameters():
+        #     if param.requires_grad:
+        #         print(name)
 
     def forward(self, x):
         x = self.resnet(x)
