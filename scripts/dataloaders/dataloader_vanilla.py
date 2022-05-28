@@ -31,8 +31,6 @@ class VanillaImageDataset(Dataset):
               on a sample.
       """
       super(VanillaImageDataset, self).__init__()
-      #self.transform = transforms.Compose([
-      #                  transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
       self.root_dir = dir
       self.files = sorted(filter(lambda x: os.path.isfile(os.path.join(dir, x)),
                       os.listdir(dir)))
