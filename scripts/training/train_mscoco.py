@@ -12,18 +12,15 @@ from torch.utils.data import DataLoader
 
 from torchvision import datasets, transforms
 import random
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-import plotly.express as px
 from tqdm import tqdm
-from time import sleep
 
 # unfortunately this is required to use relative imports
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(
                 os.path.dirname(SCRIPT_DIR)))
 
-from scripts.models.model_conv_ae import Conv_AE
+from scripts.models.model_ae import Conv_AE
+from scripts.models.model_conv_ae import Fully_Conv_AE
 from scripts.dataloaders.dataloader_vanilla import VanillaImageDataset
 from scripts.solver import Solver
 from scripts.plotting.plot_results import plot_loss_and_acc
@@ -31,8 +28,8 @@ from scripts.plotting.plot_results import plot_loss_and_acc
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-train_dir = '/Users/brianweston/Documents/Stanford_CS/CS231N_CNN/Project/cs231n_final_project/data/coco_small' #coco_unlabeled2017_mid'
-test_dir = '/Users/brianweston/Documents/Stanford_CS/CS231N_CNN/Project/cs231n_final_project/data/coco_small' #coco_unlabeled2017_mid'
+train_dir = '/Users/brianweston/Documents/Stanford_CS/CS231N_CNN/Project/cs231n_final_project/data/coco_unlabeled2017' #coco_unlabeled2017_mid'
+test_dir = '/Users/brianweston/Documents/Stanford_CS/CS231N_CNN/Project/cs231n_final_project/data/coco_unlabeled2017_mid'
 #train_dir = data_dir + '/train'
 #test_dir  = data_dir + '/test'
 
@@ -68,12 +65,13 @@ def imshow(img):
     #plt.imshow(img[0,:,:,:])
     img = np.transpose(img, (1, 2, 0))
     image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    plt.imshow(img)
+    plt.imshow(image)
     #plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
 
 
 # import convolutional autoencoder
-model = Conv_AE(1000,'mot17')
+#model = Fully_Conv_AE(512,'mot17')
+model = Conv_AE(512,'mot17')
 
 # specify loss function
 criterion = nn.MSELoss() #BCE vs MSE
@@ -83,7 +81,7 @@ loss_fcn = criterion
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001) #weight_decay=1e-5
 
 # number of epochs to train the model
-n_epochs = 1
+n_epochs = 30
 
 solver = Solver(model, optimizer, loss_fcn)
 
@@ -91,7 +89,7 @@ solver = Solver(model, optimizer, loss_fcn)
 solver.train(epochs=n_epochs, 
             train_data_loader=train_loader,
             val_data_loader=test_loader,
-            save_path=None,#os.path.join(SCRIPT_DIR,'checkpoints'),
+            save_path=None,
             save_every=1,
             print_every=64,
             verbose=True)
@@ -137,7 +135,7 @@ output = output.detach().numpy()
 
 # plot the first ten input images and then reconstructed images
 fig, axes = plt.subplots(nrows=2, ncols=10, sharex=True, sharey=True, figsize=(24,4))
-for idx in np.arange(1):
+for idx in np.arange(20):
     ax = fig.add_subplot(2, 10, idx+1, xticks=[], yticks=[])
     imshow(output[idx])
     fig.savefig('reconstructed_mscoco.png')
@@ -145,7 +143,7 @@ for idx in np.arange(1):
     
 # plot the first ten input images and then reconstructed images
 fig, axes = plt.subplots(nrows=2, ncols=10, sharex=True, sharey=True, figsize=(24,4))
-for idx in np.arange(1):
+for idx in np.arange(20):
     ax = fig.add_subplot(2, 10, idx+1, xticks=[], yticks=[])
     imshow(images[idx])
     fig.savefig('original_mscoco.png')

@@ -19,7 +19,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(
                 os.path.dirname(SCRIPT_DIR)))
 
-from scripts.plotting.plot_results import plot_loss_and_acc
+#from scripts.plotting.plot_results import plot_loss_and_acc
 
 class VanillaImageDataset(Dataset):
   def __init__(self, dir):

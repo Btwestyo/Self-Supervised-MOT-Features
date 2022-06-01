@@ -71,12 +71,13 @@ class Conv_AE(nn.Module):
 
     def forward(self, x):
         x = self.encoder(x)
+        z = self.fc2(x.view(-1, self.num_of_params*256))
+        x_recon = self.decoder(z.view(-1, self.latent_dim_size, 1, 1))    
         #print(x.shape)
    #     z = self.fc1(x.view(-1, self.num_of_params*256))
         #print(z.shape)
-        z = self.fc2(x.view(-1, self.num_of_params*256))
         #x_recon = self.decoder(z.view(-1, self.latent_dim_size, 1, 1))  
-        x_recon = self.decoder(z.view(-1, self.latent_dim_size, 1, 1))            
+        
         return x_recon
     
     
@@ -94,5 +95,11 @@ class Conv_AE(nn.Module):
         return torch.tensor(0)
 
 if __name__ == '__main__':
-
-    model = Conv_AE(1000,'mot17')
+    input = torch.randn(5, 3, 112, 112)
+    output = Conv_AE()(input)
+    print(input.shape)
+    print(output.shape)
+    model = Conv_AE()
+    #print(model)
+    encoded_output = model.encoder(input)
+    print(encoded_output.shape)
