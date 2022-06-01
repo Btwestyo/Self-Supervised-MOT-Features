@@ -77,14 +77,13 @@ class Conv_AE(nn.Module):
    #     z = self.fc1(x.view(-1, self.num_of_params*256))
         #print(z.shape)
         #x_recon = self.decoder(z.view(-1, self.latent_dim_size, 1, 1))  
-        
         return x_recon
     
     
     # TODO: hopefully this does not mess up inference pipelines when loading models
     def get_latent_vec(self, x):
         x = self.encoder(x)
-        z = self.fc1(x.view(-1, self.num_of_params*128))
+        z = self.fc2(x.view(-1, self.num_of_params*256))
         return z
         
     def get_recon_from_latent_vec(self, latent_vec):
@@ -101,5 +100,5 @@ if __name__ == '__main__':
     print(output.shape)
     model = Conv_AE()
     #print(model)
-    encoded_output = model.encoder(input)
-    print(encoded_output.shape)
+    latent_vec = model.get_latent_vec(input)
+    print(latent_vec.shape)
